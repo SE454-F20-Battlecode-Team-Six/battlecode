@@ -14,15 +14,15 @@ public strictfp class RobotPlayer {
         // Create
         Robot rob = null;
         switch (rc.getType()) {
-            case HQ:                 rob = new HQ(rc);      break;
-            case MINER:              rob = new Miner(rc);   break;
-            case REFINERY:
+            case HQ:                    rob = new HQ(rc);           break;
+            case MINER:                 rob = new Miner(rc);        break;
+            case REFINERY:              
             case VAPORATOR:
             case DESIGN_SCHOOL:
             case FULFILLMENT_CENTER:
             case LANDSCAPER:
             case DELIVERY_DRONE:
-            case NET_GUN:            rob = new Robot(rc);   break;
+            case NET_GUN:               rob = new Robot(rc);        break;
         }
 
         System.out.println("I'm a " + rc.getType() + " and I just got created!");
