@@ -16,7 +16,7 @@ public strictfp class RobotPlayer {
         switch (rc.getType()) {
             case HQ:                    rob = new HQ(rc);           break;
             case MINER:                 rob = new Miner(rc);        break;
-            case REFINERY:              
+            case REFINERY:              rob = new Refinery(rc);     break;
             case VAPORATOR:
             case DESIGN_SCHOOL:
             case FULFILLMENT_CENTER:
