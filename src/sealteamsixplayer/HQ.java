@@ -18,6 +18,10 @@ public class HQ extends Robot
 
         try
         {
+            // If this is the beginning of the game, communicate my location
+            if (turnCount < 3)
+                comm.sendLocation(MessageType.HQ_LOCATION, rc.getLocation());
+
             // We'll start by building 5 miners. Can adjust if this isn't enough soup production.
             if (numberOfMiners < 5)
             {
