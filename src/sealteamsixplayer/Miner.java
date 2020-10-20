@@ -27,9 +27,11 @@ public class Miner extends Robot
         //      if full, move towards refinery
         //      if not full sense for soup, and move towards soup
 
-        // tryBlockchain();
         try
         {
+            if (turnCount < 5) // We are a youth, so it's time to learn.
+                checkBlockchain();
+
             if (refineryLocation == null)
                 tryBuildRefinery();
 
@@ -46,13 +48,23 @@ public class Miner extends Robot
 
             if (isNextToRefinery())
             {
-                rc.depositSoup(rc.getLocation().directionTo(refineryLocation), rc.getSoupCarrying());
+                rc.depositSoup(to(refineryLocation), rc.getSoupCarrying());
                 System.out.println("I'm depositing soup! " + rc.getLocation());
             }
 
-            if (isFull())
+            if (isNextToHq())
             {
-                tryMove(rc.getLocation().directionTo(refineryLocation));
+                rc.depositSoup(to(refineryLocation), rc.getSoupCarrying());
+                System.out.println("I'm depositing soup! " + rc.getLocation());
+            }
+
+            if (isFull() && refineryLocation != null)
+            {
+                tryMove(to(refineryLocation));
+            }
+            else if (isFull() && hqLocation != null)
+            {
+                tryMove(to(hqLocation));
             }
 
             tryMove(this.randomDirection());
@@ -65,11 +77,24 @@ public class Miner extends Robot
         }
     }
 
+    private boolean isNextToHq()
+    {
+        return hqLocation != null
+            && hqLocation.isAdjacentTo(rc.getLocation())
+            && rc.canDepositSoup(to(hqLocation));
+    }
+
+    private void checkBlockchain()
+    {
+        //hqLocation = comm.getHQ();
+
+    }
+
     private boolean isNextToRefinery()
     {
         return refineryLocation != null
             && refineryLocation.isAdjacentTo(rc.getLocation())
-            && rc.canDepositSoup(rc.getLocation().directionTo(refineryLocation));
+            && rc.canDepositSoup(to(refineryLocation));
     }
 
     private boolean isFull()
@@ -86,6 +111,8 @@ public class Miner extends Robot
                 rc.buildRobot(RobotType.DESIGN_SCHOOL, dir);
                 designSchoolLocation = rc.getLocation().add(dir);
                 System.out.println("I built a Design School! " + designSchoolLocation);
+                if(comm.sendLocation(MessageType.DESIGN_SCHOOL_LOCATION, designSchoolLocation))
+                    System.out.println("I sent the location of the Design School.");
             }
         }
     }
@@ -99,6 +126,8 @@ public class Miner extends Robot
                 rc.buildRobot(RobotType.REFINERY, dir);
                 refineryLocation = rc.getLocation().add(dir);
                 System.out.println("I built a refinery! " + refineryLocation);
+                if(comm.sendLocation(MessageType.REFINERY_LOCATION, designSchoolLocation))
+                    System.out.println("I sent the location of the Design School.");
             }
         }
     }

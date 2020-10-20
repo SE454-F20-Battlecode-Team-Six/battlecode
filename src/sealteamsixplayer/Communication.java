@@ -1,7 +1,6 @@
 package sealteamsixplayer;
 
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
+import battlecode.common.*;
 
 public class Communication
 {
@@ -9,22 +8,14 @@ public class Communication
     static final int teamKey = 66554433;
     public static int maxSoupCost = 5;
 
-    public enum MessageType
-    {
-        HQ_LOCATION,
-        REFINERY_LOCATION,
-        DESIGN_SCHOOL_LOCATION,
-        SOUP_LOCATION,
-    }
-
     public Communication(RobotController rc)
     {
         this.rc = rc;
     }
 
-    public boolean sendLocation(MessageType type, int x, int y)
+    public boolean sendLocation(MessageType type, MapLocation location)
     {
-        int[] message = {x, y};
+        int[] message = {location.x, location.y};
         return sendMessage(type, message);
     }
 

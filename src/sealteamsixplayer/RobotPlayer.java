@@ -1,6 +1,5 @@
 package sealteamsixplayer;
 import battlecode.common.*;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public strictfp class RobotPlayer {
     /**
@@ -22,7 +21,7 @@ public strictfp class RobotPlayer {
             case FULFILLMENT_CENTER:
             case DELIVERY_DRONE:
             case NET_GUN:               robot = new Robot(rc);        break;
-            default:                    throw new NotImplementedException(); // This should never fire.
+            default:                    throw new IllegalArgumentException("Non-existent robot type"); // This should never fire.
         }
 
         System.out.println("I'm a " + rc.getType() + " and I just got created!");

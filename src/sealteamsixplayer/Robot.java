@@ -20,10 +20,14 @@ public class Robot
 
     protected RobotController rc;
     int turnCount = 0;
+    Communication comm;
+
+    MapLocation hqLocation;
 
     public Robot (RobotController rc)
     {
         this.rc = rc;
+        comm = new Communication(rc);
     }
 
     public void go()
@@ -32,20 +36,8 @@ public class Robot
         turnCount++;
     }
 
-    private boolean tryMove() throws GameActionException {
-        for (Direction dir : directions)
-            if (tryMove(dir))
-                return true;
-        return false;
-        // MapLocation loc = rc.getLocation();
-        // if (loc.x < 10 && loc.x < loc.y)
-        //     return tryMove(Direction.EAST);
-        // else if (loc.x < 10)
-        //     return tryMove(Direction.SOUTH);
-        // else if (loc.x > loc.y)
-        //     return tryMove(Direction.WEST);
-        // else
-        //     return tryMove(Direction.NORTH);
+    protected Direction to(MapLocation location) {
+        return rc.getLocation().directionTo(location);
     }
 
     /**
