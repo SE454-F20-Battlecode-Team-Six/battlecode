@@ -6,6 +6,7 @@ public class Miner extends Robot
 {
     MapLocation refineryLocation;
     MapLocation designSchoolLocation;
+    MapLocation[] soupLocations;
 
     public Miner (RobotController rc)
     {
@@ -16,6 +17,8 @@ public class Miner extends Robot
     {
         super.go();
         // Priority order:
+        //      If the miner is new (< 5 turns?) check blockchain for:
+        //          refineryLocation, designSchoolLocation, soupLocations
         //      Build refinery if no refinery.
         //      Build design school if no design school
         //      Build Fulfillment center if no FC
