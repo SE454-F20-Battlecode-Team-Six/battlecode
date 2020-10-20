@@ -14,7 +14,9 @@ public class Refinery extends Robot {
     public void go() {
         super.go();
 
-        announceSelfLocation();     //Announce refinery position
+        //Announce refinery position at the beginning so we don't waste bytecode every round
+        if(turnCount == 1)
+            announceSelfLocation();
 
         //The plan is to use this in the BlockChain
         RobotInfo[] nearByRobots = sensor();
