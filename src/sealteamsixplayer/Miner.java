@@ -6,6 +6,7 @@ public class Miner extends Robot
 {
     MapLocation refineryLocation;
     MapLocation designSchoolLocation;
+    MapLocation fulfillCenterLocation;
     MapLocation[] soupLocations;
 
     public Miner (RobotController rc)
@@ -39,6 +40,8 @@ public class Miner extends Robot
                 tryBuildDesignSchool();
 
             // TODO: Build fulfillment center for drones
+            if(fulfillCenterLocation == null)
+                tryBuildFR();
 
             if (!isFull())
             {
@@ -126,8 +129,21 @@ public class Miner extends Robot
                 rc.buildRobot(RobotType.REFINERY, dir);
                 refineryLocation = rc.getLocation().add(dir);
                 System.out.println("I built a refinery! " + refineryLocation);
-                if(comm.sendLocation(MessageType.REFINERY_LOCATION, designSchoolLocation))
+                if(comm.sendLocation(MessageType.REFINERY_LOCATION, refineryLocation))
                     System.out.println("I sent the location of the Design School.");
+            }
+        }
+    }
+
+    private void tryBuildFR() throws GameActionException
+    {
+        for(Direction dir : directions) {
+            if(rc.canBuildRobot(RobotType.FULFILLMENT_CENTER,dir)) {
+                rc.buildRobot(RobotType.FULFILLMENT_CENTER, dir);
+                fulfillCenterLocation = rc.getLocation().add(dir);
+                System.out.println("I built a fulfillment center! " + fulfillCenterLocation);
+                if(comm.sendLocation(MessageType.FR_LOCATION, fulfillCenterLocation))
+                    System.out.println("I sent the location of the Fulfillment Center.");
             }
         }
     }
