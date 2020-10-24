@@ -109,7 +109,7 @@ public class Landscaper extends Robot
 		wallCoords[7][1] = hqLocation.y+1;
 		for(int i = 0; i < 50; ++i)
 		{
-			int rand = (int) (Math.random() * 8);
+			int rand = (int) Math.round(((Math.random() * 7)));
 			MapLocation tileLoc = new MapLocation(wallCoords[rand][0], wallCoords[rand][1]);
 			if (rc.senseRobotAtLocation((tileLoc)) != null)
 				continue;
