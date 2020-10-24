@@ -6,6 +6,9 @@ public class DesignSchool extends Robot
 {
     public DesignSchool(RobotController rc) { super(rc); }
 
+    int landscaperCount = 0;
+    final int landscaperMaxCount = 4;
+    
     @Override
     public void go()
     {
@@ -13,7 +16,11 @@ public class DesignSchool extends Robot
         try
         {
             for (Direction dir : directions)
-                tryBuild(RobotType.LANDSCAPER, dir);
+			{
+				if(landscaperCount < landscaperMaxCount)
+					if(tryBuild(RobotType.LANDSCAPER, dir))
+						++landscaperCount;
+			}
         }
         catch (GameActionException e)
         {

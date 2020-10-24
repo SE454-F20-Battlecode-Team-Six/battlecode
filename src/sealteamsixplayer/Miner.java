@@ -30,7 +30,7 @@ public class Miner extends Robot
 
         try
         {
-            if (turnCount < 5) // We are a youth, so it's time to learn.
+            if (turnCount < 5 || turnCount % 5 == 0) // We are a youth, so it's time to learn.
                 checkBlockchain();
 
             if (refineryLocation == null)
@@ -57,7 +57,7 @@ public class Miner extends Robot
 
             if (isNextToHq())
             {
-                rc.depositSoup(to(refineryLocation), rc.getSoupCarrying());
+                rc.depositSoup(to(hqLocation), rc.getSoupCarrying());
                 System.out.println("I'm depositing soup! " + rc.getLocation());
             }
 
@@ -87,10 +87,20 @@ public class Miner extends Robot
             && rc.canDepositSoup(to(hqLocation));
     }
 
-    private void checkBlockchain()
+    private void checkBlockchain() throws GameActionException
     {
-        //hqLocation = comm.getHQ();
-
+    	if (hqLocation != null && refineryLocation != null && designSchoolLocation != null && fulfillCenterLocation != null)
+    		return;
+		MapLocation [] locations = comm.getLocations(1,rc.getRoundNum());
+		if(hqLocation == null)
+			hqLocation = locations[0];
+		if(refineryLocation == null)
+			refineryLocation = locations[1];
+		if(designSchoolLocation == null)
+			designSchoolLocation = locations[2];
+		if(fulfillCenterLocation == null)
+			fulfillCenterLocation = locations[3];
+		return;
     }
 
     private boolean isNextToRefinery()
