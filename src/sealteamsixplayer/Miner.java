@@ -80,14 +80,14 @@ public class Miner extends Robot
         }
     }
 
-    private boolean isNextToHq()
+    public boolean isNextToHq()
     {
         return hqLocation != null
             && hqLocation.isAdjacentTo(rc.getLocation())
             && rc.canDepositSoup(to(hqLocation));
     }
 
-    private void checkBlockchain() throws GameActionException
+    public void checkBlockchain() throws GameActionException
     {
     	if (hqLocation != null && refineryLocation != null && designSchoolLocation != null && fulfillCenterLocation != null)
     		return;
@@ -103,19 +103,19 @@ public class Miner extends Robot
 		return;
     }
 
-    private boolean isNextToRefinery()
+    public boolean isNextToRefinery()
     {
         return refineryLocation != null
             && refineryLocation.isAdjacentTo(rc.getLocation())
             && rc.canDepositSoup(to(refineryLocation));
     }
 
-    private boolean isFull()
+    public boolean isFull()
     {
         return rc.getSoupCarrying() >= RobotType.MINER.soupLimit - GameConstants.SOUP_MINING_RATE;
     }
 
-    private void tryBuildDesignSchool() throws GameActionException
+    public void tryBuildDesignSchool() throws GameActionException
     {
         for (Direction dir : directions)
         {
@@ -130,7 +130,7 @@ public class Miner extends Robot
         }
     }
 
-    private void tryBuildRefinery() throws GameActionException
+    public void tryBuildRefinery() throws GameActionException
     {
         for (Direction dir : directions)
         {
@@ -145,7 +145,7 @@ public class Miner extends Robot
         }
     }
 
-    private void tryBuildFR() throws GameActionException
+    public void tryBuildFR() throws GameActionException
     {
         for(Direction dir : directions) {
             if(rc.canBuildRobot(RobotType.FULFILLMENT_CENTER,dir)) {
@@ -164,7 +164,7 @@ public class Miner extends Robot
      * @param dir The intended direction of mining
      * @return true if a move was performed
      */
-    private boolean tryMine(Direction dir) throws GameActionException {
+     public boolean tryMine(Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canMineSoup(dir)) {
             rc.mineSoup(dir);
             System.out.println("I mined soup at " + rc.getLocation().add(dir));
