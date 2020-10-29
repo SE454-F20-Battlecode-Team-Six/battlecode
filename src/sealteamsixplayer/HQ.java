@@ -34,6 +34,8 @@ public class HQ extends Robot
                     }
                 }
             }
+
+            //Maybe try to send the location to the blockchain here
         }
         catch (GameActionException e)
         {
