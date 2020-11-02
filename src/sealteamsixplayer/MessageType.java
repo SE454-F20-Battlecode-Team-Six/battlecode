@@ -7,4 +7,5 @@ public enum MessageType
     DESIGN_SCHOOL_LOCATION,
     FR_LOCATION,
     SOUP_LOCATION,
+    DRONE_LOCATION,
 }
