@@ -161,7 +161,7 @@ public class Mobile extends Robot
      * Translate a call to comm.getLocations into actionable locations by parsing the
      * given list of <code>TypedMapLocation</code>.
      */
-    private void checkBlockchain() throws GameActionException
+    protected void checkBlockchain() throws GameActionException
     {
         ArrayList<TypedMapLocation> locations = comm.getLocations();
 
