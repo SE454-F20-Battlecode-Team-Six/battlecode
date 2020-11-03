@@ -122,7 +122,7 @@ public class Mobile extends Robot
         int radius = rc.getCurrentSensorRadiusSquared();
 
         // Try to sense enemy HQ
-        RobotInfo[] enemies = rc.senseNearbyRobots(radius, enemyTeam);
+        RobotInfo[] enemies = rc.senseNearbyRobots(radius, rc.getTeam().opponent());
         for (RobotInfo enemy : enemies)
         {
             if (enemy.type == RobotType.HQ)
