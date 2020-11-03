@@ -14,7 +14,18 @@ public class DeliveryDrone extends Robot {
 
         //After the 100th turn
         try {
-            if (turnCount > 100) {
+            if (turnCount <= 100){ //Using cows to pollute the other team
+                if(!rc.isCurrentlyHoldingUnit()){
+                    RobotInfo[] robots = rc.senseNearbyRobots(); //Planning to improve this?
+                    for(RobotInfo r : robots){
+                        if(r.getType() == RobotType.COW){
+                            rc.pickUpUnit(r.getID());
+                            //drop them near enemy
+                        }
+                    }
+                }
+            }
+            if (turnCount > 100) { //After 100 turns, go after the other team robots
                 Team enemy = rc.getTeam().opponent();
                 if (!rc.isCurrentlyHoldingUnit()) {
                     RobotInfo[] robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED, enemy);
@@ -50,9 +61,9 @@ public class DeliveryDrone extends Robot {
     //While the drone is carrying a robot, try to find a way to the ocean.
     private void dropAtOcean() throws GameActionException {
         while(rc.isCurrentlyHoldingUnit()){
-            if(tryMoveToFlood(randomDirection()) == true){
-                rc.dropUnit(droppingPoint);
-                droppingPoint = null;
+            if(tryMoveToFlood(randomDirection())){
+                rc.dropUnit(this.droppingPoint);
+                this.droppingPoint = null; //reset the dropping point
             }
         }
     }

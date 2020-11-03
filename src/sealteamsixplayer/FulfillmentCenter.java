@@ -20,7 +20,7 @@ public class FulfillmentCenter extends Robot {
                 }
             }
 
-            while(rc.getRoundNum() > 500 && rc.getRoundNum() < 1000){
+            while(rc.getRoundNum() > 500 && rc.getRoundNum() < 1000){ //More drone later in game
                 if(rc.getTeamSoup() > 100){
                     if(tryBuildDrone() == true)
                         ++droneCount;
