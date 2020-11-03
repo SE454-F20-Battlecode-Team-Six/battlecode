@@ -17,12 +17,18 @@ public class Communication
         this.rc = rc;
     }
 
+    /**
+     * Sends a message to the block chain saying that the given location is the given type of location.
+     */
     public boolean sendLocation(LocationType type, MapLocation location)
     {
         int[] message = {location.x, location.y};
         return sendMessage(type, message);
     }
 
+    /**
+     * Sends a keyed message to the block chain containing the given location type and message.
+     */
     private boolean sendMessage(LocationType type, int[] message)
     {
         // Ensure message has space for key and type and that we can send message.
@@ -37,14 +43,16 @@ public class Communication
             // Soup cost is 1/100th of the round num rounded up, or MAX_SOUP_COST, whichever is less.
             int cost = Math.min(rc.getRoundNum() / 100 + 1, MAX_SOUP_COST);
 
-            try // Submit message to blockchain.
+            if (rc.canSubmitTransaction(keyedMessage, cost))
             {
-                rc.submitTransaction(keyedMessage, cost);
-                return true;
-            }
-            catch (GameActionException e)
-            {
-                e.printStackTrace();
+                try // Submit message to blockchain.
+                {
+                    rc.submitTransaction(keyedMessage, cost);
+                    return true;
+                } catch (GameActionException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
         return false;

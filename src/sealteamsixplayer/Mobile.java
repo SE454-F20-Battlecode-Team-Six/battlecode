@@ -2,6 +2,8 @@ package sealteamsixplayer;
 
 import battlecode.common.*;
 import java.util.ArrayList;
+import java.util.Iterator;
+
 import static sealteamsixplayer.LocationType.*;
 
 /***
@@ -39,6 +41,9 @@ public class Mobile extends Robot
 
     }
 
+    /**
+     * Convenience method for checking if we are "at location". That is to say, on top of or next to.
+     */
     public boolean atLocation(MapLocation target)
     {
         return rc.getLocation().equals(target) || rc.getLocation().isAdjacentTo(target);
@@ -63,6 +68,11 @@ public class Mobile extends Robot
             return false;
     }
 
+    /**
+     * Walk in the "general" direction given by <code>dir</code>. Calculates forward as any of:
+     *      forward, left-forward, left, right-forward, right
+     * @returns true if the robot was able to move, false otherwise.
+     */
     public boolean goTo(Direction dir) throws GameActionException
     {
         Direction[] forward = {
@@ -79,10 +89,18 @@ public class Mobile extends Robot
             if (tryMove(d))
                 return true;
         }
-        System.out.println("Failed to move " + dir + "!");
+        System.err.println("Failed to move " + dir + "!");
+        System.err.println("ready:" + rc.isReady() +
+            " can move:" + rc.canMove(dir) +
+            " can sense:" + rc.canSenseLocation(rc.adjacentLocation(dir)) +
+            " robot:" + rc.senseRobotAtLocation(rc.adjacentLocation(dir)) +
+            " flooding:" + rc.senseFlooding(rc.adjacentLocation(dir)));
         return false;
     }
 
+    /**
+     * Convenience wrapper for goTo(MapLocation).
+     */
     public boolean goTo(MapLocation loc) throws GameActionException
     {
         return goTo(to(loc));
@@ -114,12 +132,15 @@ public class Mobile extends Robot
             }
         }
 
-        // Remove old empty soup spots
-        for (MapLocation soup : soupLocations)
+        // Remove old empty soup spots. Need to manually iterate over list
+        // to avoid a ConcurrentModificationException.
+        Iterator<MapLocation> i = soupLocations.iterator();
+        while (i.hasNext())
         {
+            MapLocation soup = i.next();
             if (rc.canSenseLocation(soup) && rc.senseSoup(soup) == 0)
             {
-                soupLocations.remove(soup);
+                i.remove();
                 comm.sendLocation(EMPTIED_SOUP_LOCATION, soup);
             }
         }
@@ -136,6 +157,10 @@ public class Mobile extends Robot
         }
     }
 
+    /**
+     * Translate a call to comm.getLocations into actionable locations by parsing the
+     * given list of <code>TypedMapLocation</code>.
+     */
     private void checkBlockchain() throws GameActionException
     {
         ArrayList<TypedMapLocation> locations = comm.getLocations();

@@ -1,11 +1,12 @@
 package sealteamsixplayer;
 
 import battlecode.common.*;
+import scala.collection.Map;
 
 public class Miner extends Mobile
 {
     public static final int BUILDING_BUFFER = 8;
-    MapLocation soupTarget = null;
+    MapLocation target = null;
     MapLocation closestRefinery = null;
 
     public Miner (RobotController rc)
@@ -19,13 +20,17 @@ public class Miner extends Mobile
 
         try
         {
-            // If soupTarget is no longer in the list of locations, it must have been emptied.
-            if(soupTarget != null && !soupLocations.contains(soupTarget))
-                soupTarget = null;
+            // If target is no longer in the list of locations, it must have been emptied.
+            if(target != null && !soupLocations.contains(target))
+                target = null;
 
-            // if we don't have a soupTarget, pick the closest one in our list.
-            if (soupTarget == null)
-                soupTarget = closestSoupLocation();
+            // if we don't have a target, pick the closest one in our list.
+            if (target == null)
+                target = closestSoupLocation();
+
+            // if we're STILL without a target, lets find a target to explore.
+            if (target == null)
+                target = explore();
 
             // I just need a little rest, that's all.
             if (!rc.isReady()) return;
@@ -40,19 +45,13 @@ public class Miner extends Mobile
                     if(tryMine(dir))
                         mined = true;
 
-                // Otherwise, head towards our soup target.
+                // Otherwise, head towards our target.
                 if (!mined)
                 {
-                    if (soupTarget != null && !atLocation(soupTarget))
+                    if (target != null && !atLocation(target))
                     {
-                        System.out.println("Moving to soup location: " + soupTarget);
-                        goTo(soupTarget);
-                    }
-                    // If all else failed, flail around like a loon.
-                    else
-                    {
-                        System.out.println("Moving randomly.");
-                        goTo(this.randomDirection());
+                        System.out.println("Moving to soup location: " + target);
+                        goTo(target);
                     }
                 }
             }
@@ -85,7 +84,7 @@ public class Miner extends Mobile
                 if (closestRefinery == null)
                     closestRefinery = findClosestRefinery();
                 System.out.println("I'm full, moving to " + closestRefinery);
-                tryMove(to(closestRefinery));
+                goTo(closestRefinery);
             }
         }
         catch (GameActionException e)
@@ -94,6 +93,24 @@ public class Miner extends Mobile
         }
     }
 
+    /**
+     * Pick a map quadrant to walk to randomly. Quadrants are defined by flipping robot location
+     * horizontally, vertically, or diagonally.
+     */
+    public MapLocation explore()
+    {
+        MapLocation me = rc.getLocation();
+        int h = rc.getMapHeight() - 1;
+        int w = rc.getMapWidth() - 1;
+        double r = Math.random();
+
+        if (r < 0.33) // Go north or south depending on current location.
+            return new MapLocation(me.x, h - me.y);
+        if (r >= 0.33 && r < 0.66) // Go diagonally across the map.
+            return new MapLocation(w - me.x, h - me.y);
+        else // r >= 0.66. Go east or west depending on current location.
+            return new MapLocation(w - me.x, me.y);
+    }
 
     /**
      * Returns the closer of hqLocation or refineryLocation.
