@@ -25,13 +25,10 @@ public class Robot
     float cooldown = 0;
     Communication comm;
 
-    Team enemyTeam;
-
     public Robot (RobotController rc)
     {
         this.rc = rc;
         comm = new Communication(rc);
-        enemyTeam = rc.getTeam().opponent();
     }
 
     public void go()

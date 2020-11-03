@@ -113,6 +113,7 @@ public class MinerTests
         when(rc.canBuildRobot(type, dir)).thenReturn(true);
         when(rc.getLocation()).thenReturn(new MapLocation(1, 1));
         Miner r = new Miner(rc);
+        r.hqLocation = new MapLocation(10, 10);
 
         // Act.
         try
@@ -129,4 +130,57 @@ public class MinerTests
         assertEquals(r.designSchoolLocation, rc.getLocation().add(dir));
     }
 
+    @Test
+    public void closestSoupReturnsNullWhenSoupLocationsEmpty()
+    {
+        RobotController rc = mock(RobotController.class);
+        when(rc.getLocation()).thenReturn(new MapLocation(1, 1));
+        Miner m = new Miner(rc);
+
+        MapLocation soup = m.closestSoupLocation();
+
+        assertNull(soup);
+    }
+
+    @Test
+    public void closestSoupReturnsExpectedLocationFromSoupLocations()
+    {
+        RobotController rc = mock(RobotController.class);
+        when(rc.getLocation()).thenReturn(new MapLocation(1, 1));
+        Miner m = new Miner(rc);
+        MapLocation closeLocation = new MapLocation(2, 2);
+        MapLocation farLocation = new MapLocation(10, 10);
+        m.soupLocations.add(closeLocation);
+        m.soupLocations.add(farLocation);
+
+        MapLocation closest = m.closestSoupLocation();
+
+        assertEquals(closest, closeLocation);
+    }
+
+    @Test
+    public void minerIsFullWhenFull()
+    {
+        RobotController rc = mock(RobotController.class);
+        when(rc.getLocation()).thenReturn(new MapLocation(1, 1));
+        when(rc.getSoupCarrying()).thenReturn(RobotType.MINER.soupLimit);
+        Miner m = new Miner(rc);
+
+        boolean full = m.isFull();
+
+        assertTrue(full);
+    }
+
+    @Test
+    public void minerIsNotFullWhenNotFull()
+    {
+        RobotController rc = mock(RobotController.class);
+        when(rc.getLocation()).thenReturn(new MapLocation(1, 1));
+        when(rc.getSoupCarrying()).thenReturn(5);
+        Miner m = new Miner(rc);
+
+        boolean full = m.isFull();
+
+        assertFalse(full);
+    }
 }

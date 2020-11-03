@@ -148,7 +148,7 @@ public class Miner extends Mobile
     /**
      * Returns true if the robot is next to the HQ.
      */
-    private boolean isNextToHq()
+    public boolean isNextToHq()
     {
         return hqLocation != null
             && hqLocation.isAdjacentTo(rc.getLocation())
@@ -158,14 +158,14 @@ public class Miner extends Mobile
     /**
      * Returns true if the robot is next to the refinery.
      */
-    private boolean isNextToRefinery()
+    public boolean isNextToRefinery()
     {
         return refineryLocation != null
             && refineryLocation.isAdjacentTo(rc.getLocation())
             && rc.canDepositSoup(to(refineryLocation));
     }
 
-    private boolean isFull()
+    public boolean isFull()
     {
         return rc.getSoupCarrying() >= RobotType.MINER.soupLimit - GameConstants.SOUP_MINING_RATE;
     }
@@ -198,7 +198,7 @@ public class Miner extends Mobile
         return null;
     }
 
-    private void tryBuildDesignSchool() throws GameActionException
+    public void tryBuildDesignSchool() throws GameActionException
     {
         Direction built = tryBuild(RobotType.DESIGN_SCHOOL);
         if (built != null)
@@ -209,7 +209,7 @@ public class Miner extends Mobile
         }
     }
 
-    private void tryBuildRefinery() throws GameActionException
+    public void tryBuildRefinery() throws GameActionException
     {
         Direction built = tryBuild(RobotType.REFINERY);
         if (built != null)
@@ -220,7 +220,7 @@ public class Miner extends Mobile
         }
     }
 
-    private void tryBuildFR() throws GameActionException
+    public void tryBuildFR() throws GameActionException
     {
         Direction built = tryBuild(RobotType.FULFILLMENT_CENTER);
         if (built != null)
@@ -237,7 +237,7 @@ public class Miner extends Mobile
      * @param dir The intended direction of mining
      * @return true if a move was performed
      */
-    private boolean tryMine(Direction dir) throws GameActionException {
+    public boolean tryMine(Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canMineSoup(dir)) {
             rc.mineSoup(dir);
             System.out.println("I mined soup at " + rc.getLocation().add(dir));
