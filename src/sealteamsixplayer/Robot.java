@@ -2,6 +2,8 @@ package sealteamsixplayer;
 
 import battlecode.common.*;
 
+import java.util.ArrayList;
+
 /**
  * Base class for all Robots. Contains shared code including the go method.
  */
@@ -19,40 +21,36 @@ public class Robot
     };
 
     protected RobotController rc;
-    int turnCount = 0;
+    int turnCount = 0, round = 0;
+    float cooldown = 0;
     Communication comm;
 
-    MapLocation hqLocation;
+    Team enemyTeam;
 
     public Robot (RobotController rc)
     {
         this.rc = rc;
         comm = new Communication(rc);
+        enemyTeam = rc.getTeam().opponent();
     }
 
     public void go()
     {
         // Put shared Robot turn code here.
         turnCount++;
+        round = rc.getRoundNum();
+        cooldown = rc.getCooldownTurns();
     }
 
+    /**
+     * Returns the direction from the robot to the location given.
+     *
+     * Shorthand for <code>rc.getLocation().directionTo(location)</code>
+     */
     protected Direction to(MapLocation location) {
         return rc.getLocation().directionTo(location);
     }
 
-    /**
-     * Attempts to move in a given direction.
-     *
-     * @param dir The intended direction of movement
-     * @return true if a move was performed
-     */
-    protected boolean tryMove(Direction dir) throws GameActionException {
-        // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
-        if (rc.isReady() && rc.canMove(dir) && !rc.senseFlooding(rc.adjacentLocation(dir))) {
-            rc.move(dir);
-            return true;
-        } else return false;
-    }
 
     /**
      * Returns a random Direction.
