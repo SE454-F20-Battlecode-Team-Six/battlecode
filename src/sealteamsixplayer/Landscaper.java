@@ -2,7 +2,7 @@ package sealteamsixplayer;
 
 import battlecode.common.*;
 
-public class Landscaper extends Robot
+public class Landscaper extends Mobile
 {
 	public Landscaper(RobotController rc) { super(rc); }
 	

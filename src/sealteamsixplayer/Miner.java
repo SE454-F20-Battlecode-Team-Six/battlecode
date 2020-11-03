@@ -1,13 +1,13 @@
 package sealteamsixplayer;
 
 import battlecode.common.*;
+import scala.collection.Map;
 
-public class Miner extends Robot
+public class Miner extends Mobile
 {
-    MapLocation refineryLocation;
-    MapLocation designSchoolLocation;
-    MapLocation fulfillCenterLocation;
-    MapLocation[] soupLocations;
+    public static final int BUILDING_BUFFER = 8;
+    MapLocation target = null;
+    MapLocation closestRefinery = null;
 
     public Miner (RobotController rc)
     {
@@ -17,62 +17,75 @@ public class Miner extends Robot
     public void go()
     {
         super.go();
-        // Priority order:
-        //      If the miner is new (< 5 turns?) check blockchain for:
-        //          refineryLocation, designSchoolLocation, soupLocations
-        //      Build refinery if no refinery.
-        //      Build design school if no design school
-        //      Build Fulfillment center if no FC
-        //      Mine soup if not full of soup
-        //      Deposit soup in refinery if refinery near by
-        //      if full, move towards refinery
-        //      if not full sense for soup, and move towards soup
 
         try
         {
-            if (turnCount < 5 || turnCount % 5 == 0) // We are a youth, so it's time to learn.
-                checkBlockchain();
+            // If target is no longer in the list of locations, it must have been emptied.
+            if(target != null && !soupLocations.contains(target))
+                target = null;
 
-            if (refineryLocation == null)
-                tryBuildRefinery();
+            // if we don't have a target, pick the closest one in our list.
+            if (target == null)
+                target = closestSoupLocation();
 
-            if (designSchoolLocation == null)
-                tryBuildDesignSchool();
+            // if we're STILL without a target, lets find a target to explore.
+            if (target == null)
+                target = explore();
 
-            // TODO: Build fulfillment center for drones
-            if(fulfillCenterLocation == null)
-                tryBuildFR();
+            // I just need a little rest, that's all.
+            if (!rc.isReady()) return;
 
+            // If the miner isn't full of soup, keep mining.
             if (!isFull())
             {
-                for (Direction dir : directions)
-                    tryMine(dir);
+                // First try and mine.
+                System.out.println("Trying to mine.");
+                boolean mined = false;
+                for(Direction dir : directions)
+                    if(tryMine(dir))
+                        mined = true;
+
+                // Otherwise, head towards our target.
+                if (!mined)
+                {
+                    if (target != null && !atLocation(target))
+                    {
+                        System.out.println("Moving to soup location: " + target);
+                        goTo(target);
+                    }
+                }
             }
 
-            if (isNextToRefinery())
-            {
-                rc.depositSoup(to(refineryLocation), rc.getSoupCarrying());
-                System.out.println("I'm depositing soup! " + rc.getLocation());
-            }
+//            if (isNextToRefinery())
+//            {
+//                rc.depositSoup(to(refineryLocation), rc.getSoupCarrying());
+//                System.out.println("I'm depositing soup! " + rc.getLocation());
+//            }
 
-            if (isNextToHq())
+            else if (isNextToHq())
             {
                 rc.depositSoup(to(hqLocation), rc.getSoupCarrying());
                 System.out.println("I'm depositing soup! " + rc.getLocation());
             }
 
-            if (isFull() && refineryLocation != null)
-            {
-                tryMove(to(refineryLocation));
-            }
-            else if (isFull() && hqLocation != null)
-            {
-                tryMove(to(hqLocation));
-            }
+            // TODO: designate a single builder Miner that will build needed buildings.
+            //  If not builder, skip these three.
+            //if (refineryLocation == null)
+            //tryBuildRefinery();
 
-            tryMove(this.randomDirection());
-            // TODO: update this to move to soup locations
-            // maybe including a list of sensed soup locations? see rc.senseNearbySoup()
+            if (designSchoolLocation == null && rc.getTeamSoup() > 150)
+                tryBuildDesignSchool();
+
+            if (fulfillCenterLocation == null && rc.getTeamSoup() > 150)
+                tryBuildFR();
+
+            if (isFull())
+            {
+                if (closestRefinery == null)
+                    closestRefinery = findClosestRefinery();
+                System.out.println("I'm full, moving to " + closestRefinery);
+                goTo(closestRefinery);
+            }
         }
         catch (GameActionException e)
         {
@@ -80,6 +93,61 @@ public class Miner extends Robot
         }
     }
 
+    /**
+     * Pick a map quadrant to walk to randomly. Quadrants are defined by flipping robot location
+     * horizontally, vertically, or diagonally.
+     */
+    public MapLocation explore()
+    {
+        MapLocation me = rc.getLocation();
+        int h = rc.getMapHeight() - 1;
+        int w = rc.getMapWidth() - 1;
+        double r = Math.random();
+
+        if (r < 0.33) // Go north or south depending on current location.
+            return new MapLocation(me.x, h - me.y);
+        if (r >= 0.33 && r < 0.66) // Go diagonally across the map.
+            return new MapLocation(w - me.x, h - me.y);
+        else // r >= 0.66. Go east or west depending on current location.
+            return new MapLocation(w - me.x, me.y);
+    }
+
+    /**
+     * Returns the closer of hqLocation or refineryLocation.
+     */
+    public MapLocation findClosestRefinery()
+    {
+        if (hqLocation == null) return null;
+        if (refineryLocation == null) return hqLocation;
+        return rc.getLocation().distanceSquaredTo(refineryLocation) <
+            rc.getLocation().distanceSquaredTo(hqLocation) ? refineryLocation : hqLocation;
+    }
+
+    /**
+     * Returns the soup MapLocation that's closest to the robot, or null if there are no soup locations known.
+     */
+    public MapLocation closestSoupLocation()
+    {
+        MapLocation me = rc.getLocation();
+        MapLocation closestSoup = null;
+        int closestDistance = Integer.MAX_VALUE;
+
+        // Loop through the soupLocations we know about and keep track of the closest one we've seen.
+        for (MapLocation soup : soupLocations)
+        {
+            int dist = me.distanceSquaredTo(soup);
+            if (dist < closestDistance)
+            {
+                closestDistance = dist;
+                closestSoup = soup;
+            }
+        }
+        return closestSoup;
+    }
+
+    /**
+     * Returns true if the robot is next to the HQ.
+     */
     private boolean isNextToHq()
     {
         return hqLocation != null
@@ -87,22 +155,9 @@ public class Miner extends Robot
             && rc.canDepositSoup(to(hqLocation));
     }
 
-    private void checkBlockchain() throws GameActionException
-    {
-    	if (hqLocation != null && refineryLocation != null && designSchoolLocation != null && fulfillCenterLocation != null)
-    		return;
-		MapLocation [] locations = comm.getLocations(1,rc.getRoundNum());
-		if(hqLocation == null)
-			hqLocation = locations[0];
-		if(refineryLocation == null)
-			refineryLocation = locations[1];
-		if(designSchoolLocation == null)
-			designSchoolLocation = locations[2];
-		if(fulfillCenterLocation == null)
-			fulfillCenterLocation = locations[3];
-		return;
-    }
-
+    /**
+     * Returns true if the robot is next to the refinery.
+     */
     private boolean isNextToRefinery()
     {
         return refineryLocation != null
@@ -115,46 +170,64 @@ public class Miner extends Robot
         return rc.getSoupCarrying() >= RobotType.MINER.soupLimit - GameConstants.SOUP_MINING_RATE;
     }
 
+    /**
+     * Try to build a robot at least <code>BUILDING_BUFFER</code> distance away from HQ.
+     * @param type RobotType to build.
+     * @return Direction that the building was built in.
+     * @throws GameActionException
+     */
+    public Direction tryBuild(RobotType type) throws GameActionException
+    {
+        if (hqLocation != null && rc.getLocation().distanceSquaredTo(hqLocation) > BUILDING_BUFFER)
+        {
+            for (Direction dir : directions)
+            {
+                if (rc.canBuildRobot(type, dir))
+                {
+                    rc.buildRobot(type, dir);
+                    return dir;
+                }
+            }
+        }
+        // We failed to build, lets try to move away from the HQ so we can try again
+        if (hqLocation != null)
+        {
+            tryMove(rc.getLocation().directionTo(hqLocation).opposite());
+            System.out.println("Failed to build " + type + ". Moving away from the HQ.");
+        }
+        return null;
+    }
+
     private void tryBuildDesignSchool() throws GameActionException
     {
-        for (Direction dir : directions)
+        Direction built = tryBuild(RobotType.DESIGN_SCHOOL);
+        if (built != null)
         {
-            if (rc.canBuildRobot(RobotType.DESIGN_SCHOOL, dir))
-            {
-                rc.buildRobot(RobotType.DESIGN_SCHOOL, dir);
-                designSchoolLocation = rc.getLocation().add(dir);
-                System.out.println("I built a Design School! " + designSchoolLocation);
-                if(comm.sendLocation(MessageType.DESIGN_SCHOOL_LOCATION, designSchoolLocation))
-                    System.out.println("I sent the location of the Design School.");
-            }
+            designSchoolLocation = rc.getLocation().add(built);
+            comm.sendLocation(LocationType.DESIGN_SCHOOL_LOCATION, designSchoolLocation);
+            System.out.println("I built a Design School! " + designSchoolLocation);
         }
     }
 
     private void tryBuildRefinery() throws GameActionException
     {
-        for (Direction dir : directions)
+        Direction built = tryBuild(RobotType.REFINERY);
+        if (built != null)
         {
-            if (rc.canBuildRobot(RobotType.REFINERY, dir))
-            {
-                rc.buildRobot(RobotType.REFINERY, dir);
-                refineryLocation = rc.getLocation().add(dir);
-                System.out.println("I built a refinery! " + refineryLocation);
-                if(comm.sendLocation(MessageType.REFINERY_LOCATION, refineryLocation))
-                    System.out.println("I sent the location of the Design School.");
-            }
+            refineryLocation = rc.getLocation().add(built);
+            comm.sendLocation(LocationType.REFINERY_LOCATION, refineryLocation);
+            System.out.println("I built a refinery! " + refineryLocation);
         }
     }
 
     private void tryBuildFR() throws GameActionException
     {
-        for(Direction dir : directions) {
-            if(rc.canBuildRobot(RobotType.FULFILLMENT_CENTER,dir)) {
-                rc.buildRobot(RobotType.FULFILLMENT_CENTER, dir);
-                fulfillCenterLocation = rc.getLocation().add(dir);
-                System.out.println("I built a fulfillment center! " + fulfillCenterLocation);
-                if(comm.sendLocation(MessageType.FR_LOCATION, fulfillCenterLocation))
-                    System.out.println("I sent the location of the Fulfillment Center.");
-            }
+        Direction built = tryBuild(RobotType.FULFILLMENT_CENTER);
+        if (built != null)
+        {
+            fulfillCenterLocation = rc.getLocation().add(built);
+            comm.sendLocation(LocationType.FR_LOCATION, fulfillCenterLocation);
+            System.out.println("I built a fulfillment center! " + fulfillCenterLocation);
         }
     }
 
