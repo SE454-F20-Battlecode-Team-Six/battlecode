@@ -38,6 +38,6 @@ public class Refinery extends Robot {
 
     //Not sure about this yet, probably will be in blockchain as well
     private void announceSelfLocation(){
-        comm.sendLocation(MessageType.REFINERY_LOCATION,rc.getLocation());
+        comm.sendLocation(LocationType.REFINERY_LOCATION,rc.getLocation());
     }
  }
