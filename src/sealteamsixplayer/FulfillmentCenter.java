@@ -13,20 +13,16 @@ public class FulfillmentCenter extends Robot {
     public void go() {
         try {
             while(rc.getRoundNum() < 500){
-                if(rc.getTeamSoup() > 200){  //Attempting a fast strategy when early in game
-                    if(droneCount < 10) {
-                        if (tryBuildDrone())
-                            ++droneCount;
-                    }
+                if(rc.getTeamSoup() > 200 && droneCount < 10){  //Attempting a fast strategy when early in game
+                    if (tryBuildDrone())
+                        ++droneCount;
                 }
             }
 
             while(rc.getRoundNum() > 500 && rc.getRoundNum() < 1000){ //More drone later in game
-                if(rc.getTeamSoup() > 100){
-                    if(droneCount < 20) {
-                        if (tryBuildDrone())
-                            ++droneCount;
-                    }
+                if(rc.getTeamSoup() > 100 && droneCount < 20){
+                    if (tryBuildDrone())
+                        ++droneCount;
                 }
             }
 
