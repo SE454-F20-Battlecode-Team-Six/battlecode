@@ -55,6 +55,7 @@ public class DeliveryDrone extends Mobile {
                             }
                         }
                     }
+                    tryMove(randomDirection());   //Move randomly
                 }
                 if(rc.isCurrentlyHoldingUnit()){ //Drop the thing it carrying, dunno if this is a good thing
                     rc.dropUnit(randomDirection());
