@@ -29,7 +29,7 @@ public class Landscaper extends Mobile
 					else if(nextMove == null) //do nothing if can't move to weak tile and not on weak tile
 						Clock.yield();
 					else //else move to weak tile if possible. if not, then just wait a turn.
-						tryMove(nextMove);
+						goTo(nextMove);
 				}
 			}
 		}
@@ -73,9 +73,9 @@ public class Landscaper extends Mobile
 	private void moveToHQ() throws GameActionException
 	{
 		//if landscaper can move directly towards HQ, do that
-		tryMove(to(hqLocation));
+		goTo(to(hqLocation));
 		for(Direction dir : directions)
-			tryMove(dir);
+			goTo(dir);
 	}
 	
 	//checks integrity of wall (if all adjacent tiles are 3+ elevation)

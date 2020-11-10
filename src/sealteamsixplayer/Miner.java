@@ -94,25 +94,6 @@ public class Miner extends Mobile
     }
 
     /**
-     * Pick a map quadrant to walk to randomly. Quadrants are defined by flipping robot location
-     * horizontally, vertically, or diagonally.
-     */
-    public MapLocation explore()
-    {
-        MapLocation me = rc.getLocation();
-        int h = rc.getMapHeight() - 1;
-        int w = rc.getMapWidth() - 1;
-        double r = Math.random();
-
-        if (r < 0.33) // Go north or south depending on current location.
-            return new MapLocation(me.x, h - me.y);
-        if (r >= 0.33 && r < 0.66) // Go diagonally across the map.
-            return new MapLocation(w - me.x, h - me.y);
-        else // r >= 0.66. Go east or west depending on current location.
-            return new MapLocation(w - me.x, me.y);
-    }
-
-    /**
      * Returns the closer of hqLocation or refineryLocation.
      */
     public MapLocation findClosestRefinery()
@@ -192,7 +173,7 @@ public class Miner extends Mobile
         // We failed to build, lets try to move away from the HQ so we can try again
         if (hqLocation != null)
         {
-            tryMove(rc.getLocation().directionTo(hqLocation).opposite());
+            goTo(rc.getLocation().directionTo(hqLocation).opposite());
             System.out.println("Failed to build " + type + ". Moving away from the HQ.");
         }
         return null;
