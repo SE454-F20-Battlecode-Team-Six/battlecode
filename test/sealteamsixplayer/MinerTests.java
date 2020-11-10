@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 import battlecode.common.*;
 import org.junit.Test;
 
-import java.util.Map;
-
 import static org.mockito.Mockito.*;
 
 public class MinerTests
