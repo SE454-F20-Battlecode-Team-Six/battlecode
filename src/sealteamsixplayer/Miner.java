@@ -213,7 +213,7 @@ public class Miner extends Mobile
 
     public void tryBuildRefinery() throws GameActionException
     {
-        // Only build the refinery if the closest soup is "far away" aka 100
+        // Only build the refinery if the closest soup is "far away" aka 200 distance
         MapLocation closestSoup = closestSoupLocation();
         if (hqLocation == null || closestSoup.distanceSquaredTo(hqLocation) < 200)
             return;
