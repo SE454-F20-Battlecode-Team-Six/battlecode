@@ -1,17 +1,17 @@
 package sealteamsixplayer;
 
 import battlecode.common.*;
-import scala.collection.Map;
 
 public class Miner extends Mobile
 {
-    public static final int BUILDING_BUFFER = 8;
     MapLocation target = null;
     MapLocation closestRefinery = null;
+    boolean builder;
 
     public Miner (RobotController rc)
     {
         super(rc);
+        builder = rc.getRoundNum() < 5;
     }
 
     public void go()
@@ -56,11 +56,11 @@ public class Miner extends Mobile
                 }
             }
 
-//            if (isNextToRefinery())
-//            {
-//                rc.depositSoup(to(refineryLocation), rc.getSoupCarrying());
-//                System.out.println("I'm depositing soup! " + rc.getLocation());
-//            }
+            if (isNextToRefinery())
+            {
+                rc.depositSoup(to(refineryLocation), rc.getSoupCarrying());
+                System.out.println("I'm depositing soup! " + rc.getLocation());
+            }
 
             else if (isNextToHq())
             {
@@ -68,16 +68,26 @@ public class Miner extends Mobile
                 System.out.println("I'm depositing soup! " + rc.getLocation());
             }
 
-            // TODO: designate a single builder Miner that will build needed buildings.
-            //  If not builder, skip these three.
-            //if (refineryLocation == null)
-            //tryBuildRefinery();
+            // Building Stuff
+            if(builder)
+            {
+                if (designSchoolLocation == null && rc.getTeamSoup() > 150)
+                    tryBuildDesignSchool();
 
-            if (designSchoolLocation == null && rc.getTeamSoup() > 150)
-                tryBuildDesignSchool();
+                if (fulfillCenterLocation == null && rc.getTeamSoup() > 150)
+                    tryBuildFR();
 
-            if (fulfillCenterLocation == null && rc.getTeamSoup() > 150)
-                tryBuildFR();
+                // Not sure if we need to broadcast vaporator locations yet. They
+                // kind of just sit around doing their thing...
+                // Build a Vaporator if we have a ton of spare soup.
+                // Vaporator cost 500 / generates 2 soup per round = 250 rounds to profit.
+                if (rc.getTeamSoup() > 750)
+                    tryBuildVaporator();
+
+                // Build a refinery far away from HQ if the nearest soup is really far away.
+                if (refineryLocation == null && rc.getTeamSoup() > 200)
+                    tryBuildRefinery();
+            }
 
             if (isFull())
             {
@@ -154,12 +164,15 @@ public class Miner extends Mobile
     /**
      * Try to build a robot at least <code>BUILDING_BUFFER</code> distance away from HQ.
      * @param type RobotType to build.
+     * @param buildingBuffer how far away to build the robot.
      * @return Direction that the building was built in.
      * @throws GameActionException
      */
-    public Direction tryBuild(RobotType type) throws GameActionException
+    public Direction tryBuild(RobotType type, int buildingBuffer) throws GameActionException
     {
-        if (hqLocation != null && rc.getLocation().distanceSquaredTo(hqLocation) > BUILDING_BUFFER)
+        if (type.isBuilding() &&
+            hqLocation != null &&
+            rc.getLocation().distanceSquaredTo(hqLocation) > buildingBuffer)
         {
             for (Direction dir : directions)
             {
@@ -179,6 +192,14 @@ public class Miner extends Mobile
         return null;
     }
 
+    /**
+     * Convenience wrapper for tryBuild with a default buildingBuffer of 8.
+     */
+    public Direction tryBuild(RobotType type) throws GameActionException
+    {
+        return tryBuild(type, 8);
+    }
+
     public void tryBuildDesignSchool() throws GameActionException
     {
         Direction built = tryBuild(RobotType.DESIGN_SCHOOL);
@@ -192,7 +213,13 @@ public class Miner extends Mobile
 
     public void tryBuildRefinery() throws GameActionException
     {
-        Direction built = tryBuild(RobotType.REFINERY);
+        // Only build the refinery if the closest soup is "far away" aka 100
+        MapLocation closestSoup = closestSoupLocation();
+        if (hqLocation == null || closestSoup.distanceSquaredTo(hqLocation) < 200)
+            return;
+
+        // Only build the refinery 100 units away from the hq.
+        Direction built = tryBuild(RobotType.REFINERY, 100);
         if (built != null)
         {
             refineryLocation = rc.getLocation().add(built);
@@ -209,6 +236,16 @@ public class Miner extends Mobile
             fulfillCenterLocation = rc.getLocation().add(built);
             comm.sendLocation(LocationType.FR_LOCATION, fulfillCenterLocation);
             System.out.println("I built a fulfillment center! " + fulfillCenterLocation);
+        }
+    }
+
+
+    public void tryBuildVaporator() throws GameActionException
+    {
+        Direction built = tryBuild(RobotType.VAPORATOR, 50);
+        if (built != null)
+        {
+            System.out.println("I built a vaporator! " + fulfillCenterLocation);
         }
     }
 
