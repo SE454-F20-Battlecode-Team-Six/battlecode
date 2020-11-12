@@ -22,9 +22,9 @@ public class HQ extends Robot
             if (turnCount == 5)
                 comm.sendLocation(LocationType.HQ_LOCATION, rc.getLocation());
 
-            // We'll start by building 5 miners. Can adjust if this isn't enough soup production.
-            if ((rc.getRoundNum() < 100 && numberOfMiners < 5) ||
-                (rc.getRoundNum() >= 100 && numberOfMiners < 10))
+            // We'll start by building 4 miners. Can adjust if this isn't enough soup production.
+            if ((rc.getRoundNum() < 100 && numberOfMiners < 4) ||
+                (rc.getRoundNum() >= 100 && numberOfMiners < 8))
             {
                 for (Direction dir : directions)
                 {

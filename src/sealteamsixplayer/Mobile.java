@@ -172,6 +172,7 @@ public class Mobile extends Robot
         //double r = Math.random(); //this feeds the same value to every unit
         int r = (int)(randVal.nextDouble() * 9); //this seems to give actual randomness...not sure what the difference is.
         System.out.println("My random value for exploring is: " + r);
+        rc.setIndicatorLine(rc.getLocation(), mapExplorePoints[r], 200, 0, 0);
         return mapExplorePoints[r];
     }
 
@@ -188,6 +189,7 @@ public class Mobile extends Robot
     public void senseLocations() throws GameActionException
     {
         int radius = rc.getCurrentSensorRadiusSquared();
+        int myHeight = rc.senseElevation(rc.getLocation());
 
         // Try to sense enemy HQ
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, rc.getTeam().opponent());
@@ -217,7 +219,9 @@ public class Mobile extends Robot
         MapLocation[] soups = rc.senseNearbySoup();
         for (MapLocation soup : soups)
         {
-            if (!soupLocations.contains(soup))
+            // Avoid soup that's too hard to walk to. Probably a better way of doing this, but this is quick.
+            int elevationChange = Math.abs(myHeight - rc.senseElevation(soup));
+            if (elevationChange < 3 && !soupLocations.contains(soup))
             {
                 soupLocations.add(soup);
                 comm.sendLocation(SOUP_LOCATION, soup);
