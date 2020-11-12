@@ -221,7 +221,7 @@ public class Mobile extends Robot
         {
             // Avoid soup that's too hard to walk to. Probably a better way of doing this, but this is quick.
             int elevationChange = Math.abs(myHeight - rc.senseElevation(soup));
-            if (elevationChange < 3 && !soupLocations.contains(soup))
+            if (elevationChange <= 3 && !soupLocations.contains(soup))
             {
                 soupLocations.add(soup);
                 comm.sendLocation(SOUP_LOCATION, soup);
