@@ -3,6 +3,7 @@ package sealteamsixplayer;
 import static org.junit.Assert.*;
 
 import battlecode.common.*;
+import battlecode.world.RobotControllerImpl;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -18,7 +19,8 @@ public class MinerTests
      * Assert true when Miner is next to the HQ
      */
     @Test
-    public void trueWhenMinerIsNextToHq() {
+    public void trueWhenMinerIsNextToHq()
+    {
         // Arrange.
         // Mock the API of any dependencies. We only want to test the logic in our system under test.
         RobotController rc = mock(RobotController.class);
@@ -39,7 +41,8 @@ public class MinerTests
      * Assert false when Miner is not next to the HQ
      */
     @Test
-    public void falseWhenMinerIsNotNextToHq() {
+    public void falseWhenMinerIsNotNextToHq()
+    {
         // Arrange.
         // Mock the API of any dependencies. We only want to test the logic in our system under test.
         RobotController rc = mock(RobotController.class);
@@ -60,7 +63,8 @@ public class MinerTests
      * Assert true when Miner is next to the Refinery
      */
     @Test
-    public void trueWhenMinerIsNextToRefinery() {
+    public void trueWhenMinerIsNextToRefinery()
+    {
         // Arrange.
         // Mock the API of any dependencies. We only want to test the logic in our system under test.
         RobotController rc = mock(RobotController.class);
@@ -81,7 +85,8 @@ public class MinerTests
      * Assert true when Miner is not next to the Refinery
      */
     @Test
-    public void falseWhenMinerIsNotNextToRefinery() {
+    public void falseWhenMinerIsNotNextToRefinery()
+    {
         // Arrange.
         // Mock the API of any dependencies. We only want to test the logic in our system under test.
         RobotController rc = mock(RobotController.class);
@@ -117,8 +122,7 @@ public class MinerTests
         try
         {
             r.tryBuildDesignSchool();
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             // Failing on exception is technically an assertion.
             fail("Test failed with exception " + e.getLocalizedMessage());
@@ -180,5 +184,88 @@ public class MinerTests
         boolean full = m.isFull();
 
         assertFalse(full);
+    }
+
+    @Test
+    public void minerRunsWithoutException()
+    {
+        try
+        {
+            RobotController rc = setupRobotController();
+            Miner m = new Miner(rc);
+            m.go();
+        } catch (GameActionException e)
+        {
+            fail("Failed with exception " + e.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void fullMinerTriesToMoveToRefinery()
+    {
+        try
+        {
+            RobotController rc = setupRobotController();
+            when(rc.getSoupCarrying()).thenReturn(RobotType.MINER.soupLimit);
+            Miner m = new Miner(rc);
+            m.hqLocation = new MapLocation(3,3);
+            m.go();
+
+        } catch (GameActionException e)
+        {
+            e.printStackTrace();
+            fail("Failed with exception " + e.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void builderMinerBuilds()
+    {
+        try
+        {
+            RobotController rc = setupRobotController();
+            when(rc.getTeamSoup()).thenReturn(750);
+            Miner m = new Miner(rc);
+            m.builder = true;
+            m.go();
+
+        } catch (GameActionException e)
+        {
+            e.printStackTrace();
+            fail("Failed with exception " + e.getLocalizedMessage());
+        }
+    }
+
+    public RobotController setupRobotController() throws GameActionException
+    {
+        MapLocation myLoc = new MapLocation(1, 1);
+        RobotInfo nmy = new RobotInfo(
+            2,
+            Team.B,
+            RobotType.MINER,
+            0,
+            false,
+            0,
+            7,
+            0,
+            new MapLocation(4, 4));
+        RobotInfo[] nmyBots = {nmy};
+        MapLocation[] aSoup = {new MapLocation(2,2)};
+
+        RobotController rc = mock(RobotController.class);
+        when(rc.getLocation()).thenReturn(myLoc);
+        when(rc.getSoupCarrying()).thenReturn(5);
+        when(rc.isReady()).thenReturn(true);
+        when(rc.canMineSoup(Direction.NORTH)).thenReturn(true);
+        when(rc.getTeam()).thenReturn(Team.A);
+        when(rc.getCurrentSensorRadiusSquared()).thenReturn(100);
+        when(rc.senseElevation(any())).thenReturn(3);
+        when(rc.senseNearbyRobots(anyInt(), any(Team.class)))
+            .thenReturn(nmyBots);
+        when(rc.senseNearbySoup()).thenReturn(aSoup);
+        when(rc.canSenseLocation(any())).thenReturn(true);
+        when(rc.senseSoup(any())).thenReturn(0);
+
+        return rc;
     }
 }
