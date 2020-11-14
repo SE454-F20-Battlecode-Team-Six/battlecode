@@ -2,13 +2,17 @@ package sealteamsixplayer;
 
 import battlecode.common.*;
 
+import java.sql.SQLOutput;
+
 public class HQ extends Robot
 {
     private int numberOfMiners = 0;
+    private NetGun netGun;
 
     public HQ(RobotController rc)
     {
         super(rc);
+        netGun = new NetGun(rc);
     }
 
     @Override
@@ -37,7 +41,9 @@ public class HQ extends Robot
                 }
             }
 
-            //Maybe try to send the location to the blockchain here
+            if(netGun.snipe() == 1) {
+                System.out.println("The HQ took down an enemy!");
+            }
         }
         catch (GameActionException e)
         {

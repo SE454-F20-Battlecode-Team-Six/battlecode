@@ -84,6 +84,13 @@ public class Miner extends Mobile
                 if (rc.getTeamSoup() > 750)
                     tryBuildVaporator();
 
+                //Building the Netgun
+                //Assuming that we will build 2 Netgun
+                if(rc.getTeamSoup() > 250){
+                    tryBuildNetGun();
+                }
+
+
                 // Build a refinery far away from HQ if the nearest soup is really far away.
                 if (refineryLocation == null && rc.getTeamSoup() > 200)
                     tryBuildRefinery();
@@ -249,6 +256,14 @@ public class Miner extends Mobile
         }
     }
 
+    public void tryBuildNetGun() throws GameActionException
+    {
+        Direction built = tryBuild(RobotType.NET_GUN, 25);
+        if (built != null)
+        {
+            System.out.println("I built a Net Gun!");
+        }
+    }
     /**
      * Attempts to mine soup in a given direction.
      *

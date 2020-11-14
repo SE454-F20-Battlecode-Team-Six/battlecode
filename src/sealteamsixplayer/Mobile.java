@@ -1,6 +1,8 @@
 package sealteamsixplayer;
 
 import battlecode.common.*;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -16,6 +18,10 @@ public class Mobile extends Robot
     MapLocation designSchoolLocation;
     MapLocation fulfillCenterLocation;
     MapLocation enemyHqLocation;
+
+    //I'm thinking of finding an enemy's netgun location to avoid
+    ArrayList<MapLocation> enemyGunLocation = new ArrayList<>();
+
     ArrayList<MapLocation> soupLocations = new ArrayList<>();
     int failedMoveCount; //help with getting unstuck
     boolean isDrone = false;

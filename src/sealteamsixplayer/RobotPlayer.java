@@ -20,7 +20,7 @@ public strictfp class RobotPlayer {
             case VAPORATOR:             robot = new Vaporator(rc);          break;
             case FULFILLMENT_CENTER:    robot = new FulfillmentCenter(rc);  break;
             case DELIVERY_DRONE:        robot = new DeliveryDrone(rc);      break;
-            case NET_GUN:               robot = new Robot(rc);              break;
+            case NET_GUN:               robot = new NetGun(rc);              break;
             default:                    throw new IllegalArgumentException("Non-existent robot type"); // This should never fire.
         }
 

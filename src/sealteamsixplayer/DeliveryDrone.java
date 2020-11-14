@@ -14,7 +14,7 @@ public class DeliveryDrone extends Mobile {
 
     @Override
     public void go() {
-
+        super.go();
         try {
             if(failedMoveCount > 2)
             {
