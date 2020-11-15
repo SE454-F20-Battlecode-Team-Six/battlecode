@@ -19,8 +19,8 @@ public class Mobile extends Robot
     MapLocation fulfillCenterLocation;
     MapLocation enemyHqLocation;
 
-    //I'm thinking of finding an enemy's netgun location to avoid
-    ArrayList<MapLocation> enemyGunLocation = new ArrayList<>();
+    //For spreading the net gun out a bit.
+    ArrayList<MapLocation> netGunLocation = new ArrayList<>();
 
     ArrayList<MapLocation> soupLocations = new ArrayList<>();
     int failedMoveCount; //help with getting unstuck
@@ -275,6 +275,7 @@ public class Mobile extends Robot
                 case EMPTIED_SOUP_LOCATION:
                     soupLocations.remove(typedMapLocation.location());
                     break;
+
                 default:
                     throw new GameActionException(
                         GameActionExceptionType.INTERNAL_ERROR,

@@ -10,13 +10,17 @@ public class NetGun extends Robot {
     @Override
     public void go(){
         super.go();
+
         try {
             if(snipe() == 1) {
                 System.out.println("Sniped a robot!");
+            } else {
+                System.out.println("Did not snipe any robot this round.");
             }
         } catch (GameActionException e) {
             e.printStackTrace();
         }
+
     }
 
     //360 snipe the nearest enemy

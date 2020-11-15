@@ -13,6 +13,7 @@ public enum LocationType
     ENEMY_HQ_LOCATION,
     EMPTIED_SOUP_LOCATION;
 
+
     /**
      * Converts an integer into the ordinal representation of a LocationType.
      *

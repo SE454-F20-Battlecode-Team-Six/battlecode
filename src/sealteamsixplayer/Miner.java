@@ -2,10 +2,13 @@ package sealteamsixplayer;
 
 import battlecode.common.*;
 
+import java.util.Iterator;
+
 public class Miner extends Mobile
 {
     MapLocation target = null;
     MapLocation closestRefinery = null;
+    MapLocation previousGunLocation = null;
     boolean builder;
 
     public Miner (RobotController rc)
@@ -77,6 +80,12 @@ public class Miner extends Mobile
                 if (fulfillCenterLocation == null && rc.getTeamSoup() > 150)
                     tryBuildFR();
 
+                //Building the Netgun
+                //Assuming that we will build 2 Netgun near HQ
+                if(rc.getTeamSoup() > 250 && netGunLocation.size() < 10){
+                    tryBuildNetGun();
+                }
+
                 // Not sure if we need to broadcast vaporator locations yet. They
                 // kind of just sit around doing their thing...
                 // Build a Vaporator if we have a ton of spare soup.
@@ -84,11 +93,6 @@ public class Miner extends Mobile
                 if (rc.getTeamSoup() > 750)
                     tryBuildVaporator();
 
-                //Building the Netgun
-                //Assuming that we will build 2 Netgun
-                if(rc.getTeamSoup() > 250){
-                    tryBuildNetGun();
-                }
 
 
                 // Build a refinery far away from HQ if the nearest soup is really far away.
@@ -256,13 +260,45 @@ public class Miner extends Mobile
         }
     }
 
+    //Gonna spread the netgun out a bit more
     public void tryBuildNetGun() throws GameActionException
     {
-        Direction built = tryBuild(RobotType.NET_GUN, 25);
-        if (built != null)
-        {
-            System.out.println("I built a Net Gun!");
+        //Build two gun near HQ
+        if(netGunLocation.size() < 2) {
+            MapLocation toBuildGun = hqLocation.translate(randVal.nextInt(6), randVal.nextInt(6));
+            goTo(to(toBuildGun));
+            for(Direction dir: directions)
+                goTo(dir);
+            Direction built = tryBuild(RobotType.NET_GUN, 2);
+            if(built != null){
+                netGunLocation.add(rc.getLocation());
+                System.out.println("I built a Net Gun near our HQ!");
+            }
         }
+        //Build more 3 gun near soup location
+        else if(netGunLocation.size() > 2 && netGunLocation.size() < 5) {
+            Iterator<MapLocation> soupPlace = soupLocations.iterator();
+            while(soupPlace.hasNext()){
+                MapLocation toBuildNearSoup = soupPlace.next();
+                goTo(to(toBuildNearSoup));
+                for(Direction dir: directions)
+                    goTo(dir);
+                Direction built = tryBuild(RobotType.NET_GUN);
+                if(built != null){
+                    netGunLocation.add(rc.getLocation());
+                    System.out.println("I built a Net Gun near soup locations!");
+                    return; //Jump out ?
+                }
+            }
+        }
+        //Build randomly
+        else {
+            Direction built = tryBuild(RobotType.NET_GUN, 25);
+            if (built != null) {
+                System.out.println("I built a Net Gun!");
+            }
+        }
+
     }
     /**
      * Attempts to mine soup in a given direction.

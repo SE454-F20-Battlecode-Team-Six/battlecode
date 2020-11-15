@@ -43,6 +43,8 @@ public class HQ extends Robot
 
             if(netGun.snipe() == 1) {
                 System.out.println("The HQ took down an enemy!");
+            } else {
+                System.out.println("No enemy near HQ");
             }
         }
         catch (GameActionException e)
