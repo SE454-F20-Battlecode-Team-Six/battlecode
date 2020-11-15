@@ -9,6 +9,18 @@ apply plugin: 'scala'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.0"
+    }
+}
+
+apply plugin: "org.sonarqube"
 
 ext.versions = [
     battlecode: new File(projectDir, "version.txt").text.trim()
@@ -37,7 +49,6 @@ repositories {
 configurations.all {
     resolutionStrategy.cacheDynamicVersionsFor 60, 'seconds'
 }
-
 
 // Tell gradle that we want Java 8.
 sourceCompatibility = 1.8

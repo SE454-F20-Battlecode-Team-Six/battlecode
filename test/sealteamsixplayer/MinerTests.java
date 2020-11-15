@@ -3,7 +3,6 @@ package sealteamsixplayer;
 import static org.junit.Assert.*;
 
 import battlecode.common.*;
-import battlecode.world.RobotControllerImpl;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -253,17 +252,19 @@ public class MinerTests
         MapLocation[] aSoup = {new MapLocation(2,2)};
 
         RobotController rc = mock(RobotController.class);
+
+        when(rc.canMineSoup(Direction.NORTH)).thenReturn(true);
+        when(rc.canMove(any())).thenReturn(true);
+        when(rc.canSenseLocation(any())).thenReturn(true);
+        when(rc.getCurrentSensorRadiusSquared()).thenReturn(100);
         when(rc.getLocation()).thenReturn(myLoc);
         when(rc.getSoupCarrying()).thenReturn(5);
-        when(rc.isReady()).thenReturn(true);
-        when(rc.canMineSoup(Direction.NORTH)).thenReturn(true);
         when(rc.getTeam()).thenReturn(Team.A);
-        when(rc.getCurrentSensorRadiusSquared()).thenReturn(100);
+        when(rc.isReady()).thenReturn(true);
         when(rc.senseElevation(any())).thenReturn(3);
         when(rc.senseNearbyRobots(anyInt(), any(Team.class)))
             .thenReturn(nmyBots);
         when(rc.senseNearbySoup()).thenReturn(aSoup);
-        when(rc.canSenseLocation(any())).thenReturn(true);
         when(rc.senseSoup(any())).thenReturn(0);
 
         return rc;

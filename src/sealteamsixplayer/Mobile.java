@@ -18,7 +18,6 @@ public class Mobile extends Robot
     MapLocation enemyHqLocation;
     ArrayList<MapLocation> soupLocations = new ArrayList<>();
     int failedMoveCount; //help with getting unstuck
-    boolean isDrone = false;
     java.util.Random randVal = new java.util.Random();
 
     public Mobile(RobotController rc)
@@ -60,27 +59,15 @@ public class Mobile extends Robot
      */
     protected boolean tryMove(Direction dir, boolean isDrone) throws GameActionException
     {
-        if (rc.isReady() && rc.canMove(dir))
+        // Check ready and can move, and also check if it's a drone OR if there's no flooding
+        // Drones don't care about flooding, because of the flying and all.
+        if (rc.isReady() && rc.canMove(dir) && (isDrone || !rc.senseFlooding(rc.adjacentLocation(dir))))
         {
-            if(isDrone)
-            {
-                System.out.println(rc.getType() + " moving " + dir + "--" + rc.getLocation());
-                rc.move(dir);
-                return true;
-            }
-            else
-            {
-                if (!rc.senseFlooding(rc.adjacentLocation(dir)))
-                {
-                    System.out.println(rc.getType() + " moving " + dir + "--" + rc.getLocation());
-                    rc.move(dir);
-                    return true;
-                }
-                return false;
-            }
+            System.out.println(rc.getType() + " moving " + dir + "--" + rc.getLocation());
+            rc.move(dir);
+            return true;
         }
-        else
-            return false;
+        return false;
     }
 
     /**
@@ -90,27 +77,7 @@ public class Mobile extends Robot
      */
     public boolean goTo(Direction dir) throws GameActionException
     {
-        Direction[] forward = {
-            dir,
-            dir.rotateLeft(),
-            dir.rotateRight(),
-            dir.rotateLeft().rotateLeft(),
-            dir.rotateRight().rotateRight()
-        };
-
-        // Try to move forward.
-        for (Direction d : forward)
-        {
-            if (tryMove(d, isDrone))
-                return true;
-        }
-        System.err.println("Failed to move " + dir + "!");
-        System.err.println("ready:" + rc.isReady() +
-            " can move:" + rc.canMove(dir) +
-            " can sense:" + rc.canSenseLocation(rc.adjacentLocation(dir)) +
-            " robot:" + rc.senseRobotAtLocation(rc.adjacentLocation(dir)) +
-            " flooding:" + rc.senseFlooding(rc.adjacentLocation(dir)));
-        return false;
+        return goTo(dir, false);
     }
 
     /**
@@ -157,20 +124,29 @@ public class Mobile extends Robot
      */
     public MapLocation explore()
     {
-        float h = rc.getMapHeight() - 1;
-        float w = rc.getMapWidth() - 1;
-        MapLocation[] mapExplorePoints = new MapLocation[9];
-        mapExplorePoints[0] = new MapLocation((int)w/6, (int)(.666 * h  + h*.166));//top left
-        mapExplorePoints[1] = new MapLocation((int)(.333 * w + w*.166), (int)(.666 * h + h*.166));//top mid
-        mapExplorePoints[2] = new MapLocation((int)(.666 * w + w*.166), (int)(.666 * h + h*.166));//top right
-        mapExplorePoints[3] = new MapLocation((int)(1*.166), (int)(.333 * h + h*.166));//mid left
-        mapExplorePoints[4] = new MapLocation((int)(.333 * w + w*.166), (int)(.333 * h + h*.166));//middle
-        mapExplorePoints[5] = new MapLocation((int)(.666 * w + w*.166), (int)(.333 * h + h*.166));//mid right
-        mapExplorePoints[6] = new MapLocation((int)(w*.166), (int)(h*.166));//bot left
-        mapExplorePoints[7] = new MapLocation((int)(.333 * w + w*.166), (int)(h*.166));//bot mid
-        mapExplorePoints[8] = new MapLocation((int)(.666 * w + w*.166), (int)(h*.166));//bot right
-        //double r = Math.random(); //this feeds the same value to every unit
-        int r = (int)(randVal.nextDouble() * 9); //this seems to give actual randomness...not sure what the difference is.
+        float h = rc.getMapHeight();
+        float w = rc.getMapWidth();
+        int top = (int) h / 6 * 5,
+            midH = (int) h / 2,
+            bot = (int) h / 6,
+            left = (int) w / 6,
+            midW = (int) w / 2,
+            right = (int) w / 6 * 5;
+
+        MapLocation[] mapExplorePoints = {
+            new MapLocation(left, top),
+            new MapLocation(midW, top),
+            new MapLocation(right, top),
+            new MapLocation(left, midH),
+            new MapLocation(midW, midH),
+            new MapLocation(right, midH),
+            new MapLocation(left, bot),
+            new MapLocation(midW, bot),
+            new MapLocation(right, bot),
+        };
+
+        //this seems to give actual randomness...not sure what the difference is.
+        int r = (int)(randVal.nextDouble() * 9);
         System.out.println("My random value for exploring is: " + r);
         rc.setIndicatorLine(rc.getLocation(), mapExplorePoints[r], 200, 0, 0);
         return mapExplorePoints[r];
