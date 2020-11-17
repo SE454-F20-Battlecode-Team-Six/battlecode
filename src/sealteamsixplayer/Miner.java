@@ -8,7 +8,6 @@ public class Miner extends Mobile
 {
     MapLocation target = null;
     MapLocation closestRefinery = null;
-    MapLocation previousGunLocation = null;
     boolean builder;
 
     public Miner (RobotController rc)
@@ -82,6 +81,7 @@ public class Miner extends Mobile
 
                 //Building the Netgun
                 //Assuming that we will build 2 Netgun near HQ
+                //Total netgun of 10
                 if(rc.getTeamSoup() > 250 && netGunLocation.size() < 10){
                     tryBuildNetGun();
                 }
@@ -263,31 +263,28 @@ public class Miner extends Mobile
     //Gonna spread the netgun out a bit more
     public void tryBuildNetGun() throws GameActionException
     {
-        //Build two gun near HQ
+
+        //Build two gun near HQ when the amount of net gun built is < 2
         if(netGunLocation.size() < 2) {
-            MapLocation toBuildGun = hqLocation.translate(randVal.nextInt(6), randVal.nextInt(6));
+            MapLocation toBuildGun = hqLocation.translate(randVal.nextInt(3), randVal.nextInt(3));
             goTo(to(toBuildGun));
-            for(Direction dir: directions)
-                goTo(dir);
-            Direction built = tryBuild(RobotType.NET_GUN, 2);
-            if(built != null){
+            Direction built = tryBuild(RobotType.NET_GUN,8);
+            if (built != null) {
                 netGunLocation.add(rc.getLocation());
                 System.out.println("I built a Net Gun near our HQ!");
             }
         }
         //Build more 3 gun near soup location
         else if(netGunLocation.size() > 2 && netGunLocation.size() < 5) {
-            Iterator<MapLocation> soupPlace = soupLocations.iterator();
-            while(soupPlace.hasNext()){
-                MapLocation toBuildNearSoup = soupPlace.next();
+            for (MapLocation toBuildNearSoup : soupLocations) {
                 goTo(to(toBuildNearSoup));
-                for(Direction dir: directions)
-                    goTo(dir);
-                Direction built = tryBuild(RobotType.NET_GUN);
-                if(built != null){
+                Direction built = tryBuild(RobotType.NET_GUN,8);
+                if (built != null) {
                     netGunLocation.add(rc.getLocation());
                     System.out.println("I built a Net Gun near soup locations!");
                     return; //Jump out ?
+                } else {
+                    rc.move(randomDirection()); //Just move randomly for now
                 }
             }
         }

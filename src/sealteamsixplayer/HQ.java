@@ -12,7 +12,7 @@ public class HQ extends Robot
     public HQ(RobotController rc)
     {
         super(rc);
-        netGun = new NetGun(rc);
+        NetGun netGun = new NetGun(rc);
     }
 
     @Override
@@ -41,6 +41,7 @@ public class HQ extends Robot
                 }
             }
 
+            //Now the HQ can snipe drone.  360 'em!!!!
             if(netGun.snipe() == 1) {
                 System.out.println("The HQ took down an enemy!");
             } else {
