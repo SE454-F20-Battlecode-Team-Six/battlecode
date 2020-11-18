@@ -11,7 +11,8 @@ public enum LocationType
     FR_LOCATION,
     SOUP_LOCATION,
     ENEMY_HQ_LOCATION,
-    EMPTIED_SOUP_LOCATION;
+    EMPTIED_SOUP_LOCATION,
+    NETGUN_LOCATION;
 
     /**
      * Converts an integer into the ordinal representation of a LocationType.
@@ -29,6 +30,7 @@ public enum LocationType
             case 4: return SOUP_LOCATION;
             case 5: return ENEMY_HQ_LOCATION;
             case 6: return EMPTIED_SOUP_LOCATION;
+            case 7: return NETGUN_LOCATION;
         }
         return null;
     }

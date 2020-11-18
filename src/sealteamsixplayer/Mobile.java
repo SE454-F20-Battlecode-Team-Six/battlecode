@@ -1,6 +1,8 @@
 package sealteamsixplayer;
 
 import battlecode.common.*;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -16,7 +18,12 @@ public class Mobile extends Robot
     MapLocation designSchoolLocation;
     MapLocation fulfillCenterLocation;
     MapLocation enemyHqLocation;
+    MapLocation netGunLocation;
+
     ArrayList<MapLocation> soupLocations = new ArrayList<>();
+    ArrayList<MapLocation> netGunLocations = new ArrayList<>();
+
+    int netGunCount = 0;
     int failedMoveCount; //help with getting unstuck
     java.util.Random randVal = new java.util.Random();
 
@@ -242,9 +249,19 @@ public class Mobile extends Robot
                     if (!soupLocations.contains(newSoupLoc))
                         soupLocations.add(newSoupLoc);
                     break;
+
+                case NETGUN_LOCATION:
+                    MapLocation newGunLoc = typedMapLocation.location();
+                    if(!netGunLocations.contains(newGunLoc)) {
+                        netGunLocations.add(newGunLoc);
+                        ++netGunCount;
+                    }
+                    break;
+
                 case EMPTIED_SOUP_LOCATION:
                     soupLocations.remove(typedMapLocation.location());
                     break;
+
                 default:
                     throw new GameActionException(
                         GameActionExceptionType.INTERNAL_ERROR,

@@ -14,7 +14,7 @@ public class DeliveryDrone extends Mobile {
 
     @Override
     public void go() {
-
+        super.go();
         try {
             if(failedMoveCount > 2)
             {
@@ -25,29 +25,54 @@ public class DeliveryDrone extends Mobile {
                 exploreDest = explore();
             if(turnCount % 50 == 0)
                 updateExploreDest();
-            if (rc.getRoundNum() <= 100){ //Using cows to pollute the other team
-
-                while(!rc.isCurrentlyHoldingUnit()){
+            if (rc.getRoundNum() <= 300){ //Using cows to pollute the other team
+                if(!rc.isCurrentlyHoldingUnit()){
                     RobotInfo[] robots = rc.senseNearbyRobots();
+                    float smallestDist = Integer.MAX_VALUE;
+                    RobotInfo closestRobot = null;
                     for(RobotInfo r : robots){
-                        if(r.getType() == RobotType.COW){
-                            goTo(r.getLocation());               //Go to the cow position
-                            if(rc.canPickUpUnit(r.getID())) {    //See if we can pick it up
-                                checkBlockchain();               //Check the block chain
-                                if(enemyHqLocation != null) {    //Check if we found enemy hq
-                                    rc.pickUpUnit(r.getID());    //Drop bombs on them
-                                    goTo(enemyHqLocation);
-                                    rc.dropUnit(rc.getLocation().directionTo(enemyHqLocation));
-                                }
-                                //If enemy hq is not on blockchain, just wait there or move on to different cows
+                        if(r.getType() != RobotType.COW)
+                            continue;
+                        if(rc.getLocation().isAdjacentTo(r.getLocation())){
+                            if(rc.canPickUpUnit(r.ID)){
+                                rc.pickUpUnit(r.ID);
+                                System.out.println("I picked up a fat cow!");
+                                dropAtOcean(); //For now drop em in ocean
+                                return;
+                            }
+                        } else {
+                            float currDist = rc.getLocation().distanceSquaredTo(r.getLocation());
+                            if(currDist < smallestDist){
+                                smallestDist = currDist;
+                                closestRobot = r;
                             }
                         }
                     }
-                    //After trying to move all the cow, move randomly
-                    goTo(randomDirection(), true);
+                    if(closestRobot != null){
+                        if(!goTo(to(closestRobot.getLocation()), true))
+                            ++failedMoveCount;
+                        else
+                            failedMoveCount = 0;
+                    } else if(enemyHqLocation != null)
+                    {
+                        if(!goTo(to(enemyHqLocation), true))
+                            ++failedMoveCount;
+                        else
+                            failedMoveCount = 0;
+                    }
+                    else
+                    {
+                        if(!goTo(to(exploreDest), true))
+                        {
+                            ++failedMoveCount;
+                        }
+                        else
+                            failedMoveCount = 0;
+                    }
+                } else {
+                    dropAtOcean();
+                    //rc.dropUnit(randomDirection());
                 }
-                if(rc.isCurrentlyHoldingUnit())
-                    rc.dropUnit(randomDirection());
             }
             else { //After 100 turns, go after the other team robots
                 Team enemy = rc.getTeam().opponent();
@@ -117,6 +142,7 @@ public class DeliveryDrone extends Mobile {
 
 
     //Not the very best way to move to the ocean but hey it will stall the other team miner
+    /*
     private boolean tryMoveToFlood(Direction dir) throws GameActionException{
         if(rc.senseFlooding(rc.adjacentLocation(dir))){
             this.droppingPoint = dir;
@@ -127,7 +153,7 @@ public class DeliveryDrone extends Mobile {
             return false;
         }
 
-    }
+    }*/
 
     //Drop drone in the ocean if we're next to it
     private void dropAtOcean() throws GameActionException {
