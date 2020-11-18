@@ -12,7 +12,7 @@ public class HQ extends Robot
     public HQ(RobotController rc)
     {
         super(rc);
-        NetGun netGun = new NetGun(rc);
+        netGun = new NetGun(rc);
     }
 
     @Override

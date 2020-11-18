@@ -18,11 +18,12 @@ public class Mobile extends Robot
     MapLocation designSchoolLocation;
     MapLocation fulfillCenterLocation;
     MapLocation enemyHqLocation;
-
-    //For spreading the net gun out a bit.
-    ArrayList<MapLocation> netGunLocation = new ArrayList<>();
+    MapLocation netGunLocation;
 
     ArrayList<MapLocation> soupLocations = new ArrayList<>();
+    ArrayList<MapLocation> netGunLocations = new ArrayList<>();
+
+    int netGunCount = 0;
     int failedMoveCount; //help with getting unstuck
     boolean isDrone = false;
     java.util.Random randVal = new java.util.Random();
@@ -272,6 +273,15 @@ public class Mobile extends Robot
                     if (!soupLocations.contains(newSoupLoc))
                         soupLocations.add(newSoupLoc);
                     break;
+
+                case NETGUN_LOCATION:
+                    MapLocation newGunLoc = typedMapLocation.location();
+                    if(!netGunLocations.contains(newGunLoc)) {
+                        netGunLocations.add(newGunLoc);
+                        ++netGunCount;
+                    }
+                    break;
+
                 case EMPTIED_SOUP_LOCATION:
                     soupLocations.remove(typedMapLocation.location());
                     break;

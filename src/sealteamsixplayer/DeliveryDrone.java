@@ -25,7 +25,7 @@ public class DeliveryDrone extends Mobile {
                 exploreDest = explore();
             if(turnCount % 50 == 0)
                 updateExploreDest();
-            if (rc.getRoundNum() <= 200){ //Using cows to pollute the other team
+            if (rc.getRoundNum() <= 300){ //Using cows to pollute the other team
                 if(!rc.isCurrentlyHoldingUnit()){
                     RobotInfo[] robots = rc.senseNearbyRobots();
                     float smallestDist = Integer.MAX_VALUE;
@@ -70,8 +70,8 @@ public class DeliveryDrone extends Mobile {
                             failedMoveCount = 0;
                     }
                 } else {
-                    //dropAtOcean();
-                    rc.dropUnit(randomDirection());
+                    dropAtOcean();
+                    //rc.dropUnit(randomDirection());
                 }
             }
             else { //After 100 turns, go after the other team robots
