@@ -223,8 +223,13 @@ public class MinerTests
         try
         {
             RobotController rc = setupRobotController();
+            RobotInfo HQ = new RobotInfo(1,Team.B,RobotType.HQ,
+                    0,false,0,0,0, new MapLocation(1,1));
+            RobotInfo [] list = {HQ};
             when(rc.getTeamSoup()).thenReturn(750);
+            when(rc.senseNearbyRobots()).thenReturn(list);
             Miner m = new Miner(rc);
+            m.hqLocation = new MapLocation(1,1);
             m.builder = true;
             m.go();
 
