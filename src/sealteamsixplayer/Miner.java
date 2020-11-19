@@ -83,7 +83,9 @@ public class Miner extends Mobile
                 //Building the Netgun
                 //Assuming that we will build 2 Netgun near HQ
                 //Total netgun of 8
-
+                if(rc.getTeamSoup() > 250 && this.gunIBuilt < 2){
+                    tryBuildNetGun();
+                }
 
                 // Not sure if we need to broadcast vaporator locations yet. They
                 // kind of just sit around doing their thing...
@@ -92,9 +94,7 @@ public class Miner extends Mobile
                 if (rc.getTeamSoup() > 750)
                     tryBuildVaporator();
 
-                if(rc.getTeamSoup() > 250 && this.gunIBuilt < 2){
-                    tryBuildNetGun();
-                }
+
 
                 // Build a refinery far away from HQ if the nearest soup is really far away.
                 if (refineryLocation == null && rc.getTeamSoup() > 200)
@@ -274,7 +274,7 @@ public class Miner extends Mobile
                 if(r.getTeam() != rc.getTeam().opponent() && r.getType() == RobotType.NET_GUN)
                     ++gunNearme;
             }
-            if(gunNearme < 2){
+            if(gunNearme < 2){  //Remember that the HQ is a netgun itself
                 int rand;
                 while(true){
                     rand = randVal.nextInt(7);
@@ -289,8 +289,6 @@ public class Miner extends Mobile
                     ++this.gunIBuilt;
                     comm.sendLocation(LocationType.NETGUN_LOCATION,netGunLocation);
                 }
-            } else {
-                rc.move((randomDirection())); //move randomly for a turn;
             }
         }
         else if(gunIBuilt == 1) {
@@ -310,6 +308,7 @@ public class Miner extends Mobile
                         ++this.gunIBuilt;
                         comm.sendLocation(LocationType.NETGUN_LOCATION,netGunLocation);
                     }
+                    break;
                 } else {
                     if(enemyHqLocation != null){
                         goTo(to(enemyHqLocation));
@@ -320,13 +319,11 @@ public class Miner extends Mobile
                             comm.sendLocation(LocationType.NETGUN_LOCATION,netGunLocation);
                             ++this.gunIBuilt;
                         }
-                    } else {
-                        rc.move(randomDirection());
                     }
+                    break;
                 }
             }
         }
-
     }
     /**
      * Attempts to mine soup in a given direction.
