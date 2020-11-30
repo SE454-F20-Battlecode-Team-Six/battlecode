@@ -155,4 +155,22 @@ public class LandscaperTests {
         assertNotEquals(d, Direction.CENTER);
     }
 
+    /**
+     *
+     * Assert that landscaper digs dirt when trying to build wall and their total dirt is 0.
+     * @throws GameActionException
+     */
+    @Test
+    public void digDirtWhenBuildingWallAndNotCarryingDirt() throws GameActionException
+    {
+        RobotController rc = mock(RobotController.class);
+        Landscaper r = new Landscaper(rc);
+        r.hqLocation = new MapLocation(20,21);
+        when(rc.getLocation()).thenReturn(new MapLocation(20,20));
+        when(rc.canDigDirt(r.to(r.hqLocation).opposite())).thenReturn(true);
+
+        boolean dugDirt = r.buildWall(); //landscaper expected to dig at (20, 19)
+        assertTrue(dugDirt);
+    }
+
 }

@@ -122,15 +122,18 @@ public class Landscaper extends Mobile
 	}
 	
 	//atte
-	public void buildWall() throws GameActionException
+	public boolean buildWall() throws GameActionException
 	{
-
 		if(rc.canDigDirt(to(hqLocation).opposite()) && rc.getDirtCarrying() < 1)
+		{
 			rc.digDirt(to(hqLocation).opposite());
+			return true;
+		}
 		else
 		{
 			if(rc.canDepositDirt(to(rc.getLocation())))
 				rc.depositDirt(to(rc.getLocation()));
+			return false;
 		}
 	}
 }
