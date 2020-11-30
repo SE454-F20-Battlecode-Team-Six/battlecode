@@ -37,7 +37,7 @@ public class FulfillmentCenter extends Robot {
         return this.droneCount;
     }
 
-    private boolean tryBuildDrone() throws GameActionException {
+    public boolean tryBuildDrone() throws GameActionException {
         boolean status = false;
         for(Direction dir : directions){
             if(rc.canBuildRobot(RobotType.DELIVERY_DRONE,dir)){
