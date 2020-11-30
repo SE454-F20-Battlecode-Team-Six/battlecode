@@ -7,7 +7,6 @@ public class DeliveryDrone extends Mobile {
         super(rc);
     }
 
-    Direction droppingPoint;
     MapLocation floodedTile;
     MapLocation exploreDest;
 
@@ -21,7 +20,7 @@ public class DeliveryDrone extends Mobile {
                 failedMoveCount = 0;
                 goTo(randomDirection(), true);
             }
-            if(turnCount++ == 0)
+            if(exploreDest == null)
                 exploreDest = explore();
             if(turnCount % 50 == 0)
                 updateExploreDest();
@@ -48,27 +47,7 @@ public class DeliveryDrone extends Mobile {
                             }
                         }
                     }
-                    if(closestRobot != null){
-                        if(!goTo(to(closestRobot.getLocation()), true))
-                            ++failedMoveCount;
-                        else
-                            failedMoveCount = 0;
-                    } else if(enemyHqLocation != null)
-                    {
-                        if(!goTo(to(enemyHqLocation), true))
-                            ++failedMoveCount;
-                        else
-                            failedMoveCount = 0;
-                    }
-                    else
-                    {
-                        if(!goTo(to(exploreDest), true))
-                        {
-                            ++failedMoveCount;
-                        }
-                        else
-                            failedMoveCount = 0;
-                    }
+                    tryFly(closestRobot);
                 } else {
                     dropAtOcean();
                     //rc.dropUnit(randomDirection());
@@ -107,32 +86,11 @@ public class DeliveryDrone extends Mobile {
                             }
                         }
                     }
-                    if(closestRobot != null)
-                    {
-                        if(!goTo(to(closestRobot.getLocation()), true))
-                            ++failedMoveCount;
-                        else
-                            failedMoveCount = 0;
-                    }
-                    else if(enemyHqLocation != null)
-                    {
-                        if(!goTo(to(enemyHqLocation), true))
-                            ++failedMoveCount;
-                        else
-                            failedMoveCount = 0;
-                    }
-                    else
-                    {
-                        if(!goTo(to(exploreDest), true))
-                        {
-                            ++failedMoveCount;
-                        }
-                        else failedMoveCount = 0;
-                    }
+                    tryFly(closestRobot);
                 }
-                else {
+                else
                     dropAtOcean();
-                }
+
             }
         } catch(GameActionException e){
             e.printStackTrace();
@@ -140,20 +98,30 @@ public class DeliveryDrone extends Mobile {
 
     }
 
-
-    //Not the very best way to move to the ocean but hey it will stall the other team miner
-    /*
-    private boolean tryMoveToFlood(Direction dir) throws GameActionException{
-        if(rc.senseFlooding(rc.adjacentLocation(dir))){
-            this.droppingPoint = dir;
-            rc.move(dir);
-            return true;
-        } else {
-            rc.move(randomDirection()); //No flood so move somewhere else, not the best way right now.
-            return false;
+    private void tryFly(RobotInfo closestRobot) throws GameActionException
+    {
+        if(closestRobot != null){
+            if(!goTo(to(closestRobot.getLocation()), true))
+                ++failedMoveCount;
+            else
+                failedMoveCount = 0;
         }
+        else if(enemyHqLocation != null)
+        {
+            if(!goTo(to(enemyHqLocation), true))
+                ++failedMoveCount;
+            else
+                failedMoveCount = 0;
+        }
+        else
+        {
+            if(!goTo(to(exploreDest), true))
+                ++failedMoveCount;
+            else
+                failedMoveCount = 0;
+        }
+    }
 
-    }*/
 
     //Drop drone in the ocean if we're next to it
     private void dropAtOcean() throws GameActionException {
@@ -176,7 +144,7 @@ public class DeliveryDrone extends Mobile {
 
     //looks for a place to drop a unit. Have to detect flood for every tile in sensor radius
     //sets floodedTile to nearest flooded tile
-    private void detectFlood() throws GameActionException
+    public void detectFlood() throws GameActionException
     {
         MapLocation[] nearbyFloodedTiles = new MapLocation[69]; //max sensor radius for drone can see 69 tiles
         for(int x = 0; x < 8; ++x)
@@ -204,7 +172,7 @@ public class DeliveryDrone extends Mobile {
             floodedTile = closestTile;
     }
 
-    private void updateExploreDest()
+    public void updateExploreDest()
     {
         MapLocation newDest = explore();
         int count = 0;
