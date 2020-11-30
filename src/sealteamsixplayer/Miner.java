@@ -264,64 +264,26 @@ public class Miner extends Mobile
     //Gonna spread the netgun out a bit more
     public void tryBuildNetGun() throws GameActionException
     {
-        checkBlockchain();
-        //Build two gun near HQ when the amount of net gun built is < 2
-        int gunNearme = 0;
-        if(gunIBuilt < 1) {
-            goTo(to(hqLocation));
-            RobotInfo[] robots = rc.senseNearbyRobots();
-            for(RobotInfo r : robots){
-                if(r.getTeam() != rc.getTeam().opponent() && r.getType() == RobotType.NET_GUN)
-                    ++gunNearme;
-            }
-            if(gunNearme < 2){  //Remember that the HQ is a netgun itself
-                int rand;
-                while(true){
-                    rand = randVal.nextInt(7);
-                    if(rand > 2) break;
+        Team enemy = rc.getTeam().opponent();
+        int gunCounter = 0;
+        if(gunIBuilt < 1){
+            for(MapLocation soup : soupLocations){
+                goTo(to(soup));
+                RobotInfo[] r = rc.senseNearbyRobots();
+                for(RobotInfo robots : r){
+                    if(robots.getTeam() != enemy && robots.getType() == RobotType.NET_GUN)
+                        ++gunCounter;
                 }
-                MapLocation toBuildGun = hqLocation.translate(rand, rand);
-                goTo(to(toBuildGun));
-                Direction built = tryBuild(RobotType.NET_GUN,3);
-                if (built != null) {
-                    System.out.println("I built a Net Gun near our HQ!");
-                    netGunLocation = rc.getLocation().add(built);
-                    ++this.gunIBuilt;
-                    comm.sendLocation(LocationType.NETGUN_LOCATION,netGunLocation);
-                }
-            }
-        }
-        else if(gunIBuilt == 1) {
-            for (MapLocation toBuildNearSoup : soupLocations) {
-                goTo(to(toBuildNearSoup));
-                RobotInfo[] robots = rc.senseNearbyRobots();
-                for(RobotInfo r : robots){
-                    if(r.getTeam() != rc.getTeam().opponent() && r.getType() == RobotType.NET_GUN){
-                        ++gunNearme;
-                    }
-                }
-                if(gunNearme < 5){
+                if(gunCounter < 5){
                     Direction built = tryBuild(RobotType.NET_GUN, 8);
                     if(built != null){
-                        System.out.println("I built a Net Gun near our HQ!");
+                        System.out.println("I built a Net Gun near our soup!");
                         netGunLocation = rc.getLocation().add(built);
-                        ++this.gunIBuilt;
+                        ++gunIBuilt;
                         comm.sendLocation(LocationType.NETGUN_LOCATION,netGunLocation);
                     }
-                    break;
-                } else {
-                    if(enemyHqLocation != null){
-                        goTo(to(enemyHqLocation));
-                        Direction built = tryBuild(RobotType.NET_GUN, 25);
-                        if (built != null) {
-                            System.out.println("I built a Net Gun near enemy HQ!");
-                            netGunLocation = rc.getLocation().add(built);
-                            comm.sendLocation(LocationType.NETGUN_LOCATION,netGunLocation);
-                            ++this.gunIBuilt;
-                        }
-                    }
-                    break;
                 }
+                break;
             }
         }
     }
